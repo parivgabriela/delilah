@@ -1,0 +1,28 @@
+{
+  "name": "delilah",
+  "version": "1.0.0",
+  "description": "demo_delilah",
+  "main": "db.js",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/parivgabriela/delilah.git"
+  },
+  "keywords": [
+    "delilah"
+  ],
+  "author": "parivgabriela",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/parivgabriela/delilah/issues"
+  },
+  "homepage": "https://github.com/parivgabriela/delilah#readme"
+}

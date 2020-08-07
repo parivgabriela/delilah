@@ -1,12 +1,19 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const server = express();
+const bodyParser=require('body-parser');
 
-server.listen(3000, () => {
+//const cors = require('cors');
+const api = express();
+
+api.listen(3000, (req,res) => {
     console.log('Servidor Iniciado...')
 });
 
+api.post('/login',(req,res)=>{
+    //console.log(req);
+    res.send("hello world!");
+})
+
+/*
 server.use(bodyParser.json());
 server.use(cors());
 
@@ -27,4 +34,5 @@ server.get("/usuarios", (req, res) => {
         res.status(404).json('Mail Inexistente')
             
     }
-});
+}); 
+*/
