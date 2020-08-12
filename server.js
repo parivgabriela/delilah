@@ -51,7 +51,12 @@ api.post('/login',(req,res)=>{
  if(ingresoXusuario.rol===true){
     let token=jwt.sign({usuario,rol:'admin'},claveToken);
     res.status(201).json({token});
-    console.log()
+    console.log("usuario existente");
+ }
+ else{
+     const token=jwt.sign({usuario,rol:false},claveToken);
+     res.status(utils.estadoDeServer.statusOk).json({token});
+     console.log('usuario Existente');
  }
 });
 
