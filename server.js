@@ -5,6 +5,7 @@ const Sequelize = require("sequelize");
 const utils = require("./utils");
 const { Utils } = require('sequelize');
 const sequelize = require('sequelize');
+const { query } = require('express');
 const claveToken=' eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9 ';
 //const cors = require('cors');
 const api = express();
@@ -47,17 +48,61 @@ api.post('/login',(req,res)=>{
  let {usuario_o_mail,password}=req.body;
  const usuarios= await traerTabla("usuarios");
  let ingresoXusuario=usuarios.find(unUsuario=>unUsuario.usuario==usuario_o_mail);
- let ingresoXmail=usuarios.find((unUsuario=>unUsuario.mail==usuario_o_mail))
- if(ingresoXusuario.rol===true){
-    let token=jwt.sign({usuario,rol:'admin'},claveToken);
-    res.status(201).json({token});
-    console.log("usuario existente");
+ let ingresoXmail=usuarios.find((unUsuario=>unUsuario.mail==usuario_o_mail));
+ if(ingresoXmail){
+     if(ingresoXmail.password===password){
+        if(ingresoXusuario.isAdmin===true){
+            let token=jwt.sign({usuario,isAdmin:true},claveToken);
+            res.status(201).json({token});
+            console.log("usuario existente");
+         }
+         else{
+             const token=jwt.sign({usuario,isAdmin:false},claveToken);
+             res.status(utils.estadoDeServer.statusOk).json({token});
+             console.log('usuario Existente');
+         }
+     }
+     else{
+         res.status(utils.estadoDeServer.statusErrorCliente).send(utils.mensajeServer.statusErrorClienteMensaje);
+     }
  }
  else{
-     const token=jwt.sign({usuario,rol:false},claveToken);
-     res.status(utils.estadoDeServer.statusOk).json({token});
-     console.log('usuario Existente');
+    res.status(utils.estadoDeServer.statusErrorCliente).send(utils.mensajeServer.statusErrorClienteMensaje);
  }
+ 
+});
+
+api.delete('/platos/:idPlato',autenticarUsuario,(req,res)=>{
+    let idPlato=req.params.idPlato;
+    // comprobar si funciona console.log(idPlato);
+    sequelize.query('DELETE FROM platos WHERE id_plato=?',{
+        replacements:[id_plato],
+        type: sequelize.QueryTypes.DELETE
+    }).then(function(resultados){
+        res.status(utils.estadoDeServer.statusOk).json(utils.mensajeServer.statusOkMensaje);
+    })
+});
+
+api.post('/pedidos',autenticarUsuario,(req,res)=>{
+    let unPedido  ;
+    let {id_usuario,carrito_platos,t_pago,p_time,estado,total}=req.body;
+    sequelize.query('INSERT INTO pedidos VALUE (NULL,?,?,?,?,?,?)',{
+        replacements:[id_usuario,carrito_platos,t_pago,p_time,estado,total],
+        type:sequelize.QueryTypes.INSERT
+    }).then(function(resultados){
+        //console.log(resultados[0]);
+        unPedido=resultados[0];
+            for(let i=0;i<carrito_platos.length;i++){
+            sequelize.query('INSERT INTO carritos VALUE(NULL,?,?,?,?)',{
+                replacements: [unPedido,carrito_platos[i].id_plato,carrito_platos[i].cantidad],
+                type:sequelize.QueryTypes.INSERT
+            }).then(function(resultados){
+                console.log(utils.mensajeServer.statusCargadoCarritoMensaje);
+            });
+        
+            }
+    });
+    res.status(utils.estadoDeServer.statusOkPedido).json(utils.mensajeServer.statusOkPedidoMensaje);
 });
 
 function comprobarCuentaIngreso(usuario_o_mail, password) {
